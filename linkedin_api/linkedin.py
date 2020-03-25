@@ -600,7 +600,8 @@ class Linkedin(object):
         }
 
         res = self._fetch(
-            f"/jobs/jobPostings/{job_urn_id}?{urlencode(params, safe='(),')}"
+            f"/jobs/jobPostings/{job_urn_id}?{urlencode(params, safe='(),')}",
+            headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
         )
 
         data = res.json()
