@@ -193,6 +193,67 @@ class Linkedin(object):
 
         return jobs, companies
 
+    def search_employees(
+        self, params={}, current_company_urn_id="", title="", max=12, start=0
+    ):
+        """
+        Do a search.
+        """
+
+        people = []
+
+        default_params = {
+            "count": "12",
+            "educationEndYear": "List()",
+            "educationStartYear": "List()",
+            "facetCurrentCompany": f"List({current_company_urn_id})",
+            "facetCurrentFunction": "List()",
+            "facetFieldOfStudy": "List()",
+            "facetGeoRegion": "List()",
+            "facetNetwork": "List()",
+            "facetSchool": "List()",
+            "facetSkillExplicit": "List()",
+            "keywords": f"List({title})",
+            "maxFacetValues": "15",
+            "origin": "organization",
+            "q": "people",
+            "start": f"{start}",
+            "supportedFacets": "List(GEO_REGION,SCHOOL,CURRENT_COMPANY,CURRENT_FUNCTION,FIELD_OF_STUDY,SKILL_EXPLICIT,NETWORK)",
+        }
+
+        default_params.update(params)
+        n_attempts = 0
+        while len(people) < max:
+            length_before = len(people)
+            res = self._fetch(
+                f"/search/hits?{urlencode(default_params, safe='(),')}",
+                headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
+            )
+
+            data = res.json()
+            if not data or not data["included"]:
+                break
+            for person in data["included"]:
+                public_id = person.get("publicIdentifier")
+                if public_id:
+                    people.append(
+                        {
+                            "public_id": public_id,
+                            "profile_urn_id": get_id_from_urn(person.get("objectUrn")),
+                            "first_name": person.get("firstName"),
+                            "last_name": person.get("lastName"),
+                            "title": person.get("occupation"),
+                        }
+                    )
+
+            if length_before == len(people):
+                n_attempts += 1
+            if n_attempts > 3:
+                break
+            default_params["start"] = str(int(default_params["start"]) + 12)
+
+        return people
+
     def search_people(
         self,
         keywords=None,
@@ -600,7 +661,8 @@ class Linkedin(object):
         }
 
         res = self._fetch(
-            f"/jobs/jobPostings/{job_urn_id}?{urlencode(params, safe='(),')}"
+            f"/jobs/jobPostings/{job_urn_id}?{urlencode(params, safe='(),')}",
+            headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
         )
 
         data = res.json()
