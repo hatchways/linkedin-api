@@ -231,7 +231,7 @@ class Linkedin(object):
             )
 
             data = res.json()
-            if not data or not data["included"]:
+            if not data or not data.get("included"):
                 break
             for person in data["included"]:
                 public_id = person.get("publicIdentifier")
