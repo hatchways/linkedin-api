@@ -217,7 +217,7 @@ class Linkedin(object):
             "maxFacetValues": "15",
             "origin": "organization",
             "q": "people",
-            "start": f"{start}",
+            "start": f"0",
             "supportedFacets": "List(GEO_REGION,SCHOOL,CURRENT_COMPANY,CURRENT_FUNCTION,FIELD_OF_STUDY,SKILL_EXPLICIT,NETWORK)",
         }
 
@@ -232,6 +232,9 @@ class Linkedin(object):
 
             data = res.json()
             if not data or not data.get("included"):
+                if data.get("status") == "429":
+                    print("Reached limit")
+                    return -1
                 break
             for person in data["included"]:
                 public_id = person.get("publicIdentifier")
