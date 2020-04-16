@@ -91,7 +91,7 @@ class Linkedin(object):
         default_params.update(params)
 
         res = self._fetch(
-            f"/search/blended?{urlencode(default_params, safe='(),')}",
+            f"/search/blended?{urlencode(default_params, safe='(),%')}",
             headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
         )
 
@@ -149,7 +149,7 @@ class Linkedin(object):
         while len(jobs) < max:
             length_before = len(jobs)
             res = self._fetch(
-                f"/search/hits?{urlencode(default_params, safe='(),')}",
+                f"/search/hits?{urlencode(default_params, safe='(),%')}",
                 headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
             )
 
@@ -226,7 +226,7 @@ class Linkedin(object):
         while len(people) < max:
             length_before = len(people)
             res = self._fetch(
-                f"/search/hits?{urlencode(default_params, safe='(),')}",
+                f"/search/hits?{urlencode(default_params, safe='(),%')}",
                 headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
             )
 
@@ -664,7 +664,7 @@ class Linkedin(object):
         }
 
         res = self._fetch(
-            f"/jobs/jobPostings/{job_urn_id}?{urlencode(params, safe='(),')}",
+            f"/jobs/jobPostings/{job_urn_id}?{urlencode(params, safe='(),%')}",
             headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
         )
 
