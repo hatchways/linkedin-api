@@ -217,7 +217,7 @@ class Linkedin(object):
             "maxFacetValues": "15",
             "origin": "organization",
             "q": "people",
-            "start": f"0",
+            "start": f"{start}",
             "supportedFacets": "List(GEO_REGION,SCHOOL,CURRENT_COMPANY,CURRENT_FUNCTION,FIELD_OF_STUDY,SKILL_EXPLICIT,NETWORK)",
         }
 
