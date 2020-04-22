@@ -22,6 +22,14 @@ def default_evade():
     sleep(random.randint(2, 5))  # sleep a random duration to try and evade suspention
 
 
+class LinkedinError(Exception):
+    def __init__(self, message, status_code):
+        # Call the base class constructor with the parameters it needs
+        super(LinkedinError, self).__init__(message)
+
+        self.status_code = status_code
+
+
 class Linkedin(object):
     """
     Class for accessing Linkedin API.
@@ -70,10 +78,13 @@ class Linkedin(object):
         url = f"{self.client.API_BASE_URL}{uri}"
         return self.client.session.post(url, **kwargs)
 
-    def search(self, params, limit=None, results=[]):
+    def search(self, params, limit=None, results=None):
         """
         Do a search.
         """
+        if not results:
+            results = []
+
         count = (
             limit
             if limit and limit <= Linkedin._MAX_SEARCH_COUNT
@@ -98,6 +109,10 @@ class Linkedin(object):
         data = res.json()
 
         new_elements = []
+
+        if "data" not in data or "elements" not in data["data"]:
+            raise LinkedinError(message="No data was returned", status_code=res.status_code)
+
         for i in range(len(data["data"]["elements"])):
             new_elements.extend(data["data"]["elements"][i]["elements"])
             # not entirely sure what extendedElements generally refers to - keyword search gives back a single job?
@@ -513,7 +528,7 @@ class Linkedin(object):
         return self.search_people(connection_of=urn_id, network_depth="F")
 
     def get_company_updates(
-        self, public_id=None, urn_id=None, max_results=None, results=[]
+        self, public_id=None, urn_id=None, max_results=None, results=None
     ):
         """"
         Return a list of company posts
@@ -521,6 +536,9 @@ class Linkedin(object):
         [public_id] - public identifier ie - microsoft
         [urn_id] - id provided by the related URN
         """
+        if not results:
+            results = []
+
         params = {
             "companyUniversalName": {public_id or urn_id},
             "q": "companyFeedByUniversalName",
@@ -551,7 +569,7 @@ class Linkedin(object):
         )
 
     def get_profile_updates(
-        self, public_id=None, urn_id=None, max_results=None, results=[]
+        self, public_id=None, urn_id=None, max_results=None, results=None
     ):
         """"
         Return a list of profile posts
@@ -559,6 +577,9 @@ class Linkedin(object):
         [public_id] - public identifier i.e. tom-quirk-1928345
         [urn_id] - id provided by the related URN
         """
+        if not results:
+            results = []
+
         params = {
             "profileId": {public_id or urn_id},
             "q": "memberShareFeed",
@@ -712,12 +733,15 @@ class Linkedin(object):
 
         return res.json()
 
-    def send_message(self, conversation_urn_id=None, recipients=[], message_body=None):
+    def send_message(self, conversation_urn_id=None, recipients=None, message_body=None):
         """
         Send a message to a given conversation. If error, return true.
 
         Recipients: List of profile urn id's
         """
+        if not recipients:
+            recipients = []
+
         params = {"action": "create"}
 
         if not (conversation_urn_id or recipients) and not message_body:
