@@ -114,7 +114,8 @@ class Linkedin(object):
             raise LinkedinError(message="No data was returned", status_code=res.status_code)
 
         for i in range(len(data["data"]["elements"])):
-            new_elements.extend(data["data"]["elements"][i]["elements"])
+            if "elements" in data["data"]["elements"][i]:
+                new_elements.extend(data["data"]["elements"][i]["elements"])
             # not entirely sure what extendedElements generally refers to - keyword search gives back a single job?
             # new_elements.extend(data["data"]["elements"][i]["extendedElements"])
 
