@@ -86,10 +86,10 @@ class Client(object):
     def cookies(self):
         return self.session.cookies
 
-    def authenticate(self, username, password):
+    def authenticate(self, username, password, preloaded_cookies=None):
         if self._use_cookie_cache:
             self.logger.debug("Attempting to use cached cookies")
-            cookies = self._cookie_repository.get(username)
+            cookies = self._cookie_repository.get(username) or preloaded_cookies
             if cookies:
                 self._set_session_cookies(cookies)
                 return

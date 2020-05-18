@@ -50,6 +50,7 @@ class Linkedin(object):
         refresh_cookies=False,
         debug=False,
         proxies={},
+        preloaded_cookies=None
     ):
         self.client = Client(
             refresh_cookies=refresh_cookies, debug=debug, proxies=proxies
@@ -58,7 +59,7 @@ class Linkedin(object):
         self.logger = logger
 
         if authenticate:
-            self.client.authenticate(username, password)
+            self.client.authenticate(username, password, preloaded_cookies)
 
     def _fetch(self, uri, evade=default_evade, **kwargs):
         """
