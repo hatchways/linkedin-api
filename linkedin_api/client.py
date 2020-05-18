@@ -23,16 +23,18 @@ class Client(object):
     REQUEST_HEADERS = {
         "user-agent": " ".join(
             [
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5)",
+                "Mozilla/5.0 (X11; Linux x86_64)",
                 "AppleWebKit/537.36 (KHTML, like Gecko)",
-                "Chrome/66.0.3359.181 Safari/537.36",
+                "Chrome/80.0.3987.149 Safari/537.36",
             ]
         ),
         # "accept": "application/vnd.linkedin.normalized+json+2.1",
-        "accept-language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+        "x-li-page-instance":"urn:li:page:d_flagship3_search_srp_jobs;aX+/FlO6R/+e0meD8yXRjw==,",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "en-US,en;q=0.9",
         "x-li-lang": "en_US",
         "x-restli-protocol-version": "2.0.0",
-        # "x-li-track": '{"clientVersion":"1.2.6216","osName":"web","timezoneOffset":10,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
+        "x-li-track": '{"clientVersion":"1.6.3394","osName":"web","timezoneOffset":-4,"deviceFormFactor":"DESKTOP","mpName":"voyager-web","displayDensity":2}',
     }
 
     # Settings for authenticating with Linkedin
@@ -84,10 +86,10 @@ class Client(object):
     def cookies(self):
         return self.session.cookies
 
-    def authenticate(self, username, password):
+    def authenticate(self, username, password, preloaded_cookies=None):
         if self._use_cookie_cache:
             self.logger.debug("Attempting to use cached cookies")
-            cookies = self._cookie_repository.get(username)
+            cookies = self._cookie_repository.get(username) or preloaded_cookies
             if cookies:
                 self._set_session_cookies(cookies)
                 return
