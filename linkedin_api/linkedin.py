@@ -247,24 +247,32 @@ class Linkedin(object):
                 headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
             )
 
-            data = res.json()
+            try:
+                data = res.json()
+            except json.decoder.JSONDecodeError:
+                print("Linkedin API did not return JSON, had status code:", res.status_code)
+                return -1
             if not data or not data.get("included"):
                 if data.get("status") == "429":
                     print("Reached limit")
                     return -1
                 break
+            search_hits = set([get_id_from_urn(element['hitInfo']['backendUrn']) for element in data['data'][
+                'elements']])
             for person in data["included"]:
                 public_id = person.get("publicIdentifier")
                 if public_id:
-                    people.append(
-                        {
-                            "public_id": public_id,
-                            "profile_urn_id": get_id_from_urn(person.get("objectUrn")),
-                            "first_name": person.get("firstName"),
-                            "last_name": person.get("lastName"),
-                            "title": person.get("occupation"),
-                        }
-                    )
+                    urn = get_id_from_urn(person.get("objectUrn"))
+                    if urn in search_hits:
+                        people.append(
+                            {
+                                "public_id": public_id,
+                                "profile_urn_id": urn,
+                                "first_name": person.get("firstName"),
+                                "last_name": person.get("lastName"),
+                                "title": person.get("occupation"),
+                            }
+                        )
 
             if length_before == len(people):
                 n_attempts += 1
