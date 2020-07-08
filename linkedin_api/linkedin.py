@@ -725,13 +725,17 @@ class Linkedin(object):
 
         return item
 
-    def get_conversations(self):
+    def get_conversations(self, params=None):
         """
         Return list of conversations the user is in.
         """
-        params = {"keyVersion": "LEGACY_INBOX"}
+        default_params = {"keyVersion": "LEGACY_INBOX"}
 
-        res = self._fetch(f"/messaging/conversations", params=params)
+        if params:            
+            for k in params:
+                default_params[k] = params[k]
+
+        res = self._fetch(f"/messaging/conversations", params=default_params)
 
         return res.json()
 
@@ -745,7 +749,7 @@ class Linkedin(object):
 
     def send_message(self, conversation_urn_id=None, recipients=None, message_body=None):
         """
-        Send a message to a given conversation. If error, return true.
+        Send a message to a given conversation. Returns the response object.
 
         Recipients: List of profile urn id's
         """
@@ -787,7 +791,7 @@ class Linkedin(object):
                 f"/messaging/conversations", params=params, data=json.dumps(payload)
             )
 
-        return res.status_code != 201
+        return res
 
     def mark_conversation_as_seen(self, conversation_urn_id):
         """
