@@ -258,8 +258,7 @@ class Linkedin(object):
                     return -1
                 break
             search_hits = set([get_id_from_urn(element['hitInfo']['backendUrn']) for element in data['data'][
-                'elements']])
-            for person in data["included"]:
+                'elements'] if element['hitInfo'].get('backendUrn')])
                 public_id = person.get("publicIdentifier")
                 if public_id:
                     urn = get_id_from_urn(person.get("objectUrn"))
